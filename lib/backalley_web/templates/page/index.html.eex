@@ -1,0 +1,93 @@
+<section class="phx-hero">
+  <h1><%= gettext "Welcome to %{name}!", name: "Backalley Bridge" %></h1>
+  <p></p>
+</section>
+
+<section class="row">
+  <article class="column">
+    <h2>Create Game</h2>
+    <form action="/games/new">
+      <input type="submit" value="Create">
+    </form>
+  </article>
+  <article class="column">
+    <h2>Join Existing Game</h2>
+    <form action="/games">
+      <input type="submit" value="Join">
+    </form>
+  </article>
+</section>
+
+
+<!-- <%# <table>
+        <tr>
+          <td>
+            Pick a Player:
+            <select>
+              <option value="andrew">Andrew</option>
+              <option value="david">David</option>
+              <option value="jenkins">Jenkins</option>
+              <option value="doc">Doc</option>
+              <option value="chris">Chris</option>
+              <option value="johnny">Johnny</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Number of Opponents:
+            <select>
+              <option value="one">1</option>
+              <option value="two">2</option>
+              <option value="three">3</option>
+              <option value="four">4</option>
+              <option value="five">5</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Game Name: <input type="text" name="gamename">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Create">
+          </td>
+        </tr>
+      </table>
+    </form>
+  </article>
+  <article class="column">
+    <h2>Join Existing Game</h2>
+    <form action="/games/edit">
+      <table>
+        <tr>
+          <td>
+            Pick a Game
+            <select>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Pick a Player:
+            <select>
+              <option value="andrew">Andrew</option>
+              <option value="david">David</option>
+              <option value="jenkins">Jenkins</option>
+              <option value="doc">Doc</option>
+              <option value="chris">Chris</option>
+              <option value="johnny">Johnny</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Join">
+          </td>
+        </tr>
+      </table>
+    </form>
+  </article>
+</section> %> -->

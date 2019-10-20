@@ -1,0 +1,4 @@
+
+<%= live_render(@conn, Backalley.LiveGame, session: %{game: @game, player: @player}) %>
+
+<span><%= link "Back to games list", to: Routes.game_path(@conn, :index) %></span>

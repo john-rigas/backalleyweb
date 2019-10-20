@@ -1,0 +1,184 @@
+
+<%= case @game.current_hand do %>
+<% 0 -> %>
+<ul>
+<strong>Num players joined: </strong>
+    <%= @game.num_players %>
+</ul>
+
+<%= if @game.num_players > 1 do %>
+<button phx-click="start">Start Game</button>
+<% else %>
+<ul>
+<strong>Waiting for at least one other player to join...</strong>
+</ul>
+<% end %>
+
+
+
+<% handno -> %>
+
+<%= unless @restore do %>
+
+<div class="row">
+
+<div class="column" style="width:15%; float:left">
+  <ul>
+    <strong>Current Round: </strong>
+    <%= @game.current_hand %>
+  </ul>
+    <ul>
+    <strong>Playing to round: </strong>
+    <%= @game.end_hand %>
+  </ul>
+      <ul>
+    <strong>You: </strong>
+    <%= Map.get(@game.player_seatmap, Integer.to_string(@player)) %>
+  </ul>
+ 
+<h3>Scores</h3>
+<table>
+  <tr><td>Player</td><td>Score</td></tr>
+  <%= for {{_idx, score},{_idx, playername}} <- Enum.zip(@game.scores, @game.player_seatmap) do %>
+    <tr>
+   <td><%= playername %></td>
+   <td><%= score %></td>
+    </tr>
+  <% end %>
+
+</table>  
+
+</div>
+
+  <div class="column" style="width:70%; float:left; justify-content: center;">
+
+<%= unless @game.current_hand > @game.end_hand do %>
+
+<h3>
+<%= if Map.values(@bidmap) |> Enum.member?(nil) do %>
+Bidding: 
+<% else %>
+Turn: 
+<% end %>
+<%= Map.get(@game.player_seatmap, Integer.to_string(@turn), "Unknown") %>
+</h3>
+
+
+
+<table style="width:auto">
+<h4>Your Cards</h4>
+  <%= for {idx, playername} <- @game.player_seatmap do %>
+    <%= if @player == String.to_integer(idx) do %>
+    <tr>
+      <%= for card <- Map.get(@cardmap, @player) do %>
+        <td>
+        <%= if @turn != @player or Map.values(@bidmap) |> Enum.member?(nil) do %>
+
+        <%= case Backalley.Bridge.can_throw_card(card, @trump, @player, @starting_player, Map.get(@cardmap, @player), @trick_history, @hand_history) do %>
+        <%= {true, _reason} -> %>
+        <input type="image" style="border-color:green; border-style: solid; border-width: medium;" src="<%= Routes.static_path(@socket, "/images/cards/#{card}.jpg") %>" phx-click="throw" phx-value-card="<%= card %>" phx-value-player="<%= idx %>" disabled />
+        <%= {false, _reason} -> %>
+        <input type="image" style="border-color:red; border-style: solid; border-width: medium;" src="<%= Routes.static_path(@socket, "/images/cards/#{card}.jpg") %>" phx-click="throw" phx-value-card="<%= card %>" phx-value-player="<%= idx %>" disabled />
+        <% end %>
+        <% else %>
+        <%= case Backalley.Bridge.can_throw_card(card, @trump, @player, @starting_player, Map.get(@cardmap, @player), @trick_history, @hand_history) do %>
+         <%= {true, _reason} -> %>
+        <input type="image" style="border-color:green; border-style: solid; border-width: medium;" src="<%= Routes.static_path(@socket, "/images/cards/#{card}.jpg") %>" phx-click="throw" phx-value-card="<%= card %>" phx-value-player="<%= idx %>" />
+       <%= {false, _reason} -> %>
+        <input type="image" style="border-color:red; border-style: solid; border-width: medium;" src="<%= Routes.static_path(@socket, "/images/cards/#{card}.jpg") %>" phx-click="throw" phx-value-card="<%= card %>" phx-value-player="<%= idx %>" disabled />
+       <% end %>
+        <% end %>
+        </div>
+        </td>
+      <% end %>
+    </tr>
+    <% end %>
+  
+  <% end %>
+
+
+
+  <table style="width:auto">
+    <h4>Board</h4>
+<tr>
+  <%= for {_idx, card} <- @boardmap do %>
+  <%= if is_binary(card) do %>
+    <td><img src="<%= Routes.static_path(@socket, "/images/cards/#{card}.jpg") %>"> </td>
+  <% else %>
+    <td><img src="<%= Routes.static_path(@socket, "/images/cards/purple_back.jpg") %>"> </td>
+  <% end %>
+    <% end %>
+  </tr>
+<tr>
+  <%= for {_idx, playername} <- @game.player_seatmap do %>
+    <td> <%= playername %> </td>
+  <% end %>
+  </tr>
+  </table>
+
+</div>
+
+<div class="column" style="width:15%; float:left">
+
+<ul> Place Bid</ul> 
+<form action="#" phx-submit="bid<%= @player %>">
+<select name="bidamount">
+
+<%= unless @dealer == @player do %>
+
+<%= for i <- 0..@current_hand do %>
+<option value="<%= i %>"><%= i %></option>
+<% end %>
+</select>
+
+<% else %>
+
+<%= for i <- Backalley.Bridge.get_possible_bids(@current_hand, @bidmap) do %>
+<option value="<%= i %>"><%= i %></option>
+<% end %>
+</select>
+
+<% end %>
+
+
+
+<%= unless @turn == @player and Map.values(@bidmap) |> Enum.member?(nil) do %>
+<%= submit "Bid", [phx_disable_with: "Placing bid...", disabled: true] %> 
+<% else %>
+<%= submit "Bid", phx_disable_with: "Placing bid..." %>
+<% end %>
+
+</form>
+
+<h3>Bids</h3>
+<table>
+  <tr><td>Player</td><td>Bid</td><td>Tricks won</td></tr>
+  <%= for {{_idxp, playername}, {_idxb, bid}, {_idxt, trickswon}} <- Enum.zip([@game.player_seatmap, @bidmap, @trickswonmap]) do %>
+    <tr>
+   <td><%= playername %></td>
+   <td><%= bid %></td>
+   <td><%= trickswon %></td>
+    </tr>
+  <% end %>
+  </table> 
+  <h3>Trump</h3>
+  <img src="<%= Routes.static_path(@socket, "/images/cards/#{@trump}.jpg") %>">
+
+<% else %>
+
+<h2>GAME OVER</h2>
+
+<% end %>
+
+</div>
+
+</div>
+
+<% else %>
+
+<button phx-click="restore">Restore</button>
+
+<% end %>
+
+<% end %>
+

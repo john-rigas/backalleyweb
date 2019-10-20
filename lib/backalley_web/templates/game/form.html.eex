@@ -1,0 +1,42 @@
+<%= form_for @changeset, @action, fn f -> %>
+<%= if @changeset.action do %>
+<div class="alert alert-danger">
+  <p>Oops, something went wrong! Please check the errors below.</p>
+</div>
+<% end %>
+
+<%= case @game_status do %>
+<% :new -> %>
+
+<%= label f, :name %>
+<%= text_input f, :name %>
+<%= error_tag f, :name %>
+
+<%= label f, :start_hand %>
+<%= select f, :start_hand, Enum.to_list(1..25), selected: 2  %>
+<%= error_tag f, :start_hand %>
+
+<%= label f, :end_hand %>
+<%= select f, :end_hand, Enum.to_list(1..25), selected: 8 %>
+<%= error_tag f, :end_hand %>
+
+<%= label f, "Pick a player" %>
+<%= select f, :first_player, [:chris, :andrew, :david, :johnny, :doc, :jenkins] %>
+<%= error_tag f, :player_seatmap %>
+
+<div>
+  <%= submit "Start" %>
+</div>
+
+<% :exists -> %>
+
+<%= select f, :new_player, @name_options %>
+<%= error_tag f, :player_seatmap %>
+
+<div>
+  <%= submit "Join" %>
+</div>
+
+<% end %>
+
+<% end %>
