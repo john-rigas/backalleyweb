@@ -126,15 +126,23 @@ Turn:
 
 <%= unless @dealer == @player do %>
 
-<%= for i <- 0..@current_hand do %>
+<%= for {i, idx} <- Enum.with_index(0..@current_hand) do %>
+<%= if idx == 0 do %>
+<option value="<%= i %>" selected><%= i %></option>
+<% else %>
 <option value="<%= i %>"><%= i %></option>
+<% end %>
 <% end %>
 </select>
 
 <% else %>
 
-<%= for i <- Backalley.Bridge.get_possible_bids(@current_hand, @bidmap) do %>
+<%= for {i, idx} <- Enum.with_index(Backalley.Bridge.get_possible_bids(@current_hand, @bidmap)) do %>
+<%= if idx == 0 do %>
+<option value="<%= i %>" selected><%= i %></option>
+<% else %>
 <option value="<%= i %>"><%= i %></option>
+<% end %>
 <% end %>
 </select>
 
