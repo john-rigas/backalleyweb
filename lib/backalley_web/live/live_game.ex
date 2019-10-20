@@ -33,7 +33,7 @@ defmodule Backalley.LiveGame do
       Backalley.PubSub,
       @topic,
       {"start", game, trump, cardmap, 2, boardmap, 2, [], [], socket.assigns.game.start_hand,
-       bidmap, trickswonmap, 1, 2}
+       bidmap, trickswonmap, 1, 2, nil}
     )
 
     {:noreply,
@@ -50,7 +50,8 @@ defmodule Backalley.LiveGame do
        bidmap: bidmap,
        dealer: 1,
        previous_trick_winner: 2,
-       trickswonmap: trickswonmap
+       trickswonmap: trickswonmap,
+       previous_boardmap: nil
      })}
   end
 
@@ -143,6 +144,18 @@ defmodule Backalley.LiveGame do
           socket.assigns.starting_player
       end
 
+    new_previous_boardmap =
+      cond do
+        length(new_hand_history) < new_game.num_players ->
+          nil
+
+        rem(length(new_hand_history), new_game.num_players) == 0 ->
+          Map.put(socket.assigns.boardmap, String.to_integer(playerid), card)
+
+        true ->
+          socket.assigns.previous_boardmap
+      end
+
     new_turn =
       if new_trick_history == [] do
         new_starting_player
@@ -178,7 +191,7 @@ defmodule Backalley.LiveGame do
       @topic,
       {"throw", new_hand_history, new_trick_history, new_boardmap, new_cardmap, new_turn,
        new_trump, new_previous_trick_winner, new_dealer, new_starting_player, new_trickswonmap,
-       new_bidmap}
+       new_bidmap, new_previous_boardmap}
     )
 
     {:noreply,
@@ -192,7 +205,8 @@ defmodule Backalley.LiveGame do
        bidmap: new_bidmap,
        dealer: new_dealer,
        starting_player: new_starting_player,
-       trickswonmap: new_trickswonmap
+       trickswonmap: new_trickswonmap,
+       previous_boardmap: new_previous_boardmap
      })}
   end
 
@@ -217,7 +231,8 @@ defmodule Backalley.LiveGame do
 
   def handle_info(
         {"start", game, trump, cardmap, turn, boardmap, starting_player, hand_history,
-         trick_history, current_hand, bidmap, trickswonmap, dealer, previous_trick_winner},
+         trick_history, current_hand, bidmap, trickswonmap, dealer, previous_trick_winner,
+         previous_boardmap},
         socket
       ) do
     {:noreply,
@@ -234,13 +249,14 @@ defmodule Backalley.LiveGame do
        bidmap: bidmap,
        trickswonmap: trickswonmap,
        previous_trick_winner: previous_trick_winner,
-       dealer: dealer
+       dealer: dealer,
+       previous_boardmap: previous_boardmap
      })}
   end
 
   def handle_info(
         {"throw", hand_history, trick_history, boardmap, cardmap, turn, trump,
-         previous_trick_winner, dealer, starting_player, trickswonmap, bidmap},
+         previous_trick_winner, dealer, starting_player, trickswonmap, bidmap, previous_boardmap},
         socket
       ) do
     {:noreply,
@@ -255,7 +271,8 @@ defmodule Backalley.LiveGame do
        dealer: dealer,
        starting_player: starting_player,
        trickswonmap: trickswonmap,
-       bidmap: bidmap
+       bidmap: bidmap,
+       previous_boardmap: previous_boardmap
      })}
   end
 
@@ -280,7 +297,7 @@ defmodule Backalley.LiveGame do
          socket.assigns.turn, socket.assigns.boardmap, socket.assigns.starting_player,
          socket.assigns.hand_history, socket.assigns.trick_history, socket.assigns.current_hand,
          socket.assigns.bidmap, socket.assigns.dealer, socket.assigns.previous_trick_winner,
-         socket.assigns.trickswonmap}
+         socket.assigns.trickswonmap, socket.assigns.previous_boardmap}
       )
     end
 
@@ -289,7 +306,8 @@ defmodule Backalley.LiveGame do
 
   def handle_info(
         {"complete_restore", game, trump, cardmap, turn, boardmap, starting_player, hand_history,
-         trick_history, current_hand, bidmap, dealer, previous_trick_winner, trickswonmap},
+         trick_history, current_hand, bidmap, dealer, previous_trick_winner, trickswonmap,
+         previous_boardmap},
         socket
       ) do
     IO.inspect("YAO")
@@ -309,7 +327,8 @@ defmodule Backalley.LiveGame do
        dealer: dealer,
        previous_trick_winner: previous_trick_winner,
        trickswonmap: trickswonmap,
-       restore: false
+       restore: false,
+       previous_boardmap: previous_boardmap
      })}
   end
 end

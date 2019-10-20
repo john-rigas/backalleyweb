@@ -116,6 +116,22 @@ Turn:
   </tr>
   </table>
 
+<%= if @previous_boardmap do %>
+<table style="width:auto">
+<h6>Previous Trick</h6>
+<tr>
+  <%= for {_idx, card} <- @previous_boardmap do %>
+    <td><img src="<%= Routes.static_path(@socket, "/images/small_cards/#{card}.jpg") %>"> </td>
+    <% end %>
+  </tr>
+<tr>
+  <%= for {_idx, playername} <- @game.player_seatmap do %>
+    <td> <%= playername %> </td>
+  <% end %>
+  </tr>
+</table>
+<% end %>
+
 </div>
 
 <div class="column" style="width:15%; float:left">
